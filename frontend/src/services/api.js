@@ -6,25 +6,55 @@
 
 const BASE = import.meta.env.VITE_API_BASE_URL || '';
 
-/** Generic fetch wrapper with error handling */
+/** Generic fetch wrapper with error handling and fallback */
 async function apiFetch(path, options = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
-  try {
-    const res = await fetch(`${BASE}${path}`, {
+
+  const executeFetch = async (targetBase) => {
+    return await fetch(`${targetBase}${path}`, {
       ...options,
       signal: controller.signal,
       headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     });
+  };
+
+  try {
+    let res;
+    try {
+      res = await executeFetch(BASE);
+    } catch (networkErr) {
+      // If explicit BASE failed (e.g. localhost:8000), retry with relative URL (via proxy)
+      if (BASE) {
+        res = await executeFetch('');
+      } else {
+        throw networkErr;
+      }
+    }
+
+    // If BASE returned 404 (e.g. mismatch in host/port), try relative path as well
+    if (res.status === 404 && BASE) {
+      const fallbackRes = await executeFetch('').catch(() => null);
+      if (fallbackRes && fallbackRes.ok) {
+        res = fallbackRes;
+      }
+    }
+
     clearTimeout(timeout);
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.detail || `Server error ${res.status}`);
+      const msg = err.detail || (res.status === 404 
+        ? 'Service endpoint not found (404). Please ensure the backend server is running on port 8000.'
+        : `Server error ${res.status}`);
+      throw new Error(msg);
     }
     return await res.json();
   } catch (e) {
     clearTimeout(timeout);
     if (e.name === 'AbortError') throw new Error('Request timed out. Please try again.');
+    if (e.message?.includes('Failed to fetch')) {
+      throw new Error('Could not connect to the BIS backend server. Please verify the backend is running on http://localhost:8000.');
+    }
     throw e;
   }
 }

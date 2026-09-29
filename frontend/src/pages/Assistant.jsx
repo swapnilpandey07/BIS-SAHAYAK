@@ -267,6 +267,7 @@ export default function Assistant() {
   const [category, setCategory] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [lastFailedQuery, setLastFailedQuery] = useState('');
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
 
@@ -289,6 +290,7 @@ export default function Assistant() {
     const q = (text || input).trim();
     if (!q || loading) return;
     setError('');
+    setLastFailedQuery('');
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: q }]);
     setLoading(true);
@@ -303,9 +305,18 @@ export default function Assistant() {
         is_grounded: res.is_grounded,
       }]);
     } catch (e) {
+      setLastFailedQuery(q);
       setError(e.message || 'Unable to connect to BIS Assistant. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRetry = () => {
+    if (lastFailedQuery) {
+      // Remove last user message before re-sending to avoid duplicate bubbles
+      setMessages(prev => prev.slice(0, -1));
+      sendMessage(lastFailedQuery);
     }
   };
 
@@ -409,9 +420,20 @@ export default function Assistant() {
           {loading && <LoadingMessage />}
 
           {error && (
-            <div className="alert alert-error animate-fade-in">
-              <AlertCircle size={16} />
-              <span>{error}</span>
+            <div className="alert alert-error animate-fade-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+                <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                <span>{error}</span>
+              </div>
+              {lastFailedQuery && (
+                <button
+                  className="btn btn-sm"
+                  onClick={handleRetry}
+                  style={{ background: '#fff', color: 'var(--clr-error)', border: '1px solid var(--clr-error)', borderRadius: 6, fontWeight: 600, padding: '4px 10px' }}
+                >
+                  <RefreshCw size={12} style={{ marginRight: 4 }} /> Retry
+                </button>
+              )}
             </div>
           )}
 
