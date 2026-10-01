@@ -1,14 +1,14 @@
-// Vercel Serverless Function — GET /health
-// Returns real BIS knowledge base health status
+const fs = require('fs');
+const path = require('path');
 
-export default function handler(req, res) {
+const metadataPath = path.join(process.cwd(), 'documents', 'processed', 'metadata.json');
+const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+
+module.exports = function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
   return res.status(200).json({
     status: 'healthy',
@@ -16,8 +16,8 @@ export default function handler(req, res) {
     database_connected: false,
     gemini_configured: true,
     embedding_model: 'models/text-embedding-004',
-    total_documents: 40,
-    total_chunks: 96,
-    note: 'Running in static mode — RAG queries use pre-indexed knowledge base'
+    total_documents: metadata.length,
+    total_chunks: metadata.reduce((s, d) => s + (d.chunks_count || 0), 0),
+    note: 'Running in static mode on Vercel'
   });
-}
+};

@@ -1,17 +1,17 @@
-// Vercel Serverless Function — GET /api/documents/[id]
-// Returns details for a specific BIS document by document_id or document_name
+const fs = require('fs');
+const path = require('path');
 
-import metadata from '../../../documents/processed/metadata.json' assert { type: 'json' };
+const metadataPath = path.join(process.cwd(), 'documents', 'processed', 'metadata.json');
+const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const { id } = req.query;
-  const decodedId = decodeURIComponent(id);
+  const decodedId = decodeURIComponent(id || '');
 
   const doc = metadata.find(
     d => d.document_id === decodedId || d.document_name === decodedId
@@ -26,4 +26,4 @@ export default function handler(req, res) {
     total_chunks: doc.chunks_count || 0,
     chunks: []
   });
-}
+};

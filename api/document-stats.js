@@ -1,26 +1,24 @@
-// Vercel Serverless Function — GET /api/document-stats
-// Returns live stats computed from the indexed BIS document metadata
+const fs = require('fs');
+const path = require('path');
 
-import metadata from '../documents/processed/metadata.json' assert { type: 'json' };
+const metadataPath = path.join(process.cwd(), 'documents', 'processed', 'metadata.json');
+const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const categories = {};
   const document_types = {};
-
   for (const doc of metadata) {
     const cat = doc.category || 'general';
     categories[cat] = (categories[cat] || 0) + 1;
     const dtype = doc.document_type || 'pdf';
     document_types[dtype] = (document_types[dtype] || 0) + 1;
   }
-
-  const totalChunks = metadata.reduce((sum, d) => sum + (d.chunks_count || 0), 0);
+  const totalChunks = metadata.reduce((s, d) => s + (d.chunks_count || 0), 0);
 
   return res.status(200).json({
     total_documents: metadata.length,
@@ -31,4 +29,4 @@ export default function handler(req, res) {
     failed_documents: [],
     duplicate_documents_skipped: 0
   });
-}
+};
