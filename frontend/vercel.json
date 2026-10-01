@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    { "source": "/health", "destination": "/api/health" },
+    { "source": "/api/document-stats", "destination": "/api/document-stats" },
+    { "source": "/api/documents/:id", "destination": "/api/documents/[id]" },
+    { "source": "/api/documents", "destination": "/api/documents/index" },
+    { "source": "/api/ask", "destination": "/api/ask" },
+    { "source": "/api/search", "destination": "/api/search" },
+    { "source": "/((?!api|health).*)", "destination": "/index.html" }
+  ]
+}
