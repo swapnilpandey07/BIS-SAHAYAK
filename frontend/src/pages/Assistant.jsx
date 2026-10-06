@@ -172,11 +172,29 @@ function BotMessage({ msg }) {
         <div className="chat-bubble-assistant md-content">
           <ReactMarkdown
             components={{
-              p: ({ children }) => <p style={{ marginBottom: 10 }}>{children}</p>,
-              ul: ({ children }) => <ul style={{ paddingLeft: 22, marginBottom: 10 }}>{children}</ul>,
-              ol: ({ children }) => <ol style={{ paddingLeft: 22, marginBottom: 10 }}>{children}</ol>,
-              li: ({ children }) => <li style={{ marginBottom: 4 }}>{children}</li>,
-              strong: ({ children }) => <strong style={{ color: 'var(--clr-primary-dark)' }}>{children}</strong>,
+              p: ({ children }) => <p style={{ marginBottom: 10, lineHeight: 1.6 }}>{children}</p>,
+              h3: ({ children }) => <h3 style={{ fontSize: '1.08rem', fontWeight: 800, color: 'var(--clr-primary-dark)', margin: '12px 0 8px' }}>{children}</h3>,
+              h4: ({ children }) => <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--clr-text-primary)', margin: '12px 0 6px' }}>{children}</h4>,
+              ul: ({ children }) => <ul style={{ paddingLeft: 20, marginBottom: 10 }}>{children}</ul>,
+              ol: ({ children }) => <ol style={{ paddingLeft: 20, marginBottom: 10 }}>{children}</ol>,
+              li: ({ children }) => <li style={{ marginBottom: 5, lineHeight: 1.55 }}>{children}</li>,
+              strong: ({ children }) => <strong style={{ color: 'var(--clr-primary-dark)', fontWeight: 700 }}>{children}</strong>,
+              hr: () => <hr style={{ border: 'none', borderTop: '1px solid var(--clr-border)', margin: '12px 0' }} />,
+              code: ({ children }) => (
+                <code style={{
+                  background: 'rgba(29, 78, 216, 0.08)',
+                  color: '#1e40af',
+                  padding: '2px 7px',
+                  borderRadius: 6,
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  border: '1px solid rgba(29, 78, 216, 0.15)',
+                  display: 'inline-block',
+                  margin: '1px 2px',
+                }}>
+                  {children}
+                </code>
+              ),
             }}
           >
             {msg.content}
