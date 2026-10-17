@@ -112,7 +112,14 @@ class LocalVectorStore:
         if not self.chunks or not query_text:
             return []
 
-        terms = [t.lower() for t in query_text.split() if len(t) > 2]
+        stop_words = {
+            "what", "when", "where", "which", "how", "does", "the", "and", "for", "with",
+            "this", "that", "from", "about", "tell", "show", "give", "please", "want", "step",
+            "steps", "need", "like", "kya", "hai", "hota", "kaise", "hote", "hain", "karna",
+            "kare", "mujhe", "chahiye", "under", "per", "are", "can", "you", "they", "them"
+        }
+        raw_terms = [t.lower().strip("?,.!") for t in query_text.split() if len(t) > 2]
+        terms = [t for t in raw_terms if t not in stop_words] or raw_terms
         if not terms:
             return []
 

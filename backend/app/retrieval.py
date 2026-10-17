@@ -82,7 +82,8 @@ def retrieve_relevant_chunks(
     threshold = settings.SIMILARITY_THRESHOLD
 
     entities = extract_search_entities(query)
-    target_category = category_filter or entities.get("category")
+    # Only hard-filter if explicitly specified by user; otherwise search across knowledge base
+    target_category = category_filter
     target_std = entities.get("standard_number")
 
     # 1. Compute query vector embedding

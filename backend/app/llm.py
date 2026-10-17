@@ -10,10 +10,11 @@ _genai_initialized = False
 
 # Active Gemini models in current API version
 FALLBACK_MODELS = [
+    "models/gemini-3.5-flash-lite",
+    "models/gemini-3.5-flash",
     "models/gemini-3.8-flash",
-    "models/gemini-3.7-flash",
-    "models/gemini-2.5-flash-lite",
-    "models/gemini-flash-latest",
+    "gemini-3.5-flash-lite",
+    "gemini-3.5-flash",
 ]
 
 
@@ -70,6 +71,14 @@ def _synthesize_from_context(prompt: str) -> str:
             matched_words = [w for w in key_q_words if w in all_context_content]
             if len(matched_words) < len(key_q_words) * 0.4:
                 return "The available BIS documents do not contain enough information to answer this question."
+
+    # Rank source blocks by relevance to user query words
+    if q_match and key_q_words:
+        def block_score(block):
+            hdr, cnt = block
+            txt = f"{hdr} {cnt}".lower()
+            return sum(2 if w in hdr.lower() else 1 for w in key_q_words if w in txt)
+        source_blocks = sorted(source_blocks, key=block_score, reverse=True)
 
     sections_text = []
     for header, content in source_blocks[:4]:
@@ -132,7 +141,7 @@ def generate_llm_response(
                         model_kwargs["system_instruction"] = system_instruction
 
                     model = genai.GenerativeModel(**model_kwargs)
-                    response = model.generate_content(prompt, request_options={"timeout": 3.0})
+                    response = model.generate_content(prompt, request_options={"timeout": 12.0})
 
                     if response and response.text:
                         return response.text.strip()
