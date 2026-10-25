@@ -9,6 +9,7 @@ import DocumentDetail from './pages/DocumentDetail';
 import Search from './pages/Search';
 import Dashboard from './pages/Dashboard';
 import HowItWorks from './pages/HowItWorks';
+import HeroDemo from '@/components/ui/demo';
 
 export default function App() {
   return (
@@ -25,6 +26,8 @@ export default function App() {
             <Route path="/search" element={<Search />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/hero-demo" element={<HeroDemo />} />
+            <Route path="/demo" element={<Navigate to="/hero-demo" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

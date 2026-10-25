@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   ShieldCheck, Home, MessageSquare, BookOpen,
-  Search, BarChart2, HelpCircle, Menu, X
+  Search, BarChart2, HelpCircle, Menu, X, Sparkles
 } from 'lucide-react';
 
 const NAV_LINKS = [
@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { to: '/search',       label: 'Search',        icon: Search },
   { to: '/dashboard',    label: 'Dashboard',     icon: BarChart2 },
   { to: '/how-it-works', label: 'How It Works',  icon: HelpCircle },
+  { to: '/hero-demo',    label: 'Hero Demo',     icon: Sparkles },
 ];
 
 export default function Navbar() {
